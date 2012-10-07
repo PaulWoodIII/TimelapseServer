@@ -35,7 +35,7 @@ app.get('/', function(req, res){
     articleProvider.findAll( function(error,docs){
         res.render('index.jade', { 
             locals: {
-                title: 'Blog',
+                title: 'Pedaling Paul',
                 articles:docs
             }
         });
