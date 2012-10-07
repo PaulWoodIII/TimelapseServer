@@ -1,9 +1,15 @@
 {
   "name": "node-example",
   "version": "0.0.1",
+  "scripts": {
+    "start": "node server"
+  },
   "dependencies": {
     "express": "2.5.x",
-	"cloudinary": ""
+	"cloudinary": "",
+    "jade": "*",
+    "stylus": "*",
+	"mongodb": "*"
   },
   "engines": {
     "node": "0.8.x",

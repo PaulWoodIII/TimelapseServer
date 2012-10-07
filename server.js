@@ -2,6 +2,7 @@ var express = require('express')
   , format = require('util').format;
 var fs = require('fs');
 var cloudinary = require('cloudinary');
+var ArticleProvider = require('./articleprovider').ArticleProvider;
     
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
@@ -11,18 +12,25 @@ app.use(express.errorHandler({
    showStack: true
  }));
  
-app.get('/', function(request, res) {
-  // res.send('<form method="post" enctype="multipart/form-data">'
-  //   + '<p>Title: <input type="text" name="title" /></p>'
-  //   + '<p>Image: <input type="file" name="image" /></p>'
-  //   + '<p><input type="submit" value="Upload" /></p>'
-  //   + '</form>');
-  res.send('<form method="post" enctype="multipart/form-data">'
-    + '<p>Public ID: <input type="text" name="title"/></p>'
-    + '<p>Image: <input type="file" name="image"/></p>'
-    + '<p><input type="submit" value="Upload"/></p>'
-    + '</form>');
-});
+app.get('/', function(req, res){
+	ArticleProvider.findAll(function(error, docs){
+	   res.send(docs);
+	   res.send('<form method="post" enctype="multipart/form-data">'
+	     + '<p>Public ID: <input type="text" name="title"/></p>'
+	     + '<p>Image: <input type="file" name="image"/></p>'
+	     + '<p><input type="submit" value="Upload"/></p>'
+	     + '</form>');
+	});
+})
+ 
+// app.get('/', function(request, res) {
+//   // res.send('<form method="post" enctype="multipart/form-data">'
+//   //   + '<p>Title: <input type="text" name="title" /></p>'
+//   //   + '<p>Image: <input type="file" name="image" /></p>'
+//   //   + '<p><input type="submit" value="Upload" /></p>'
+//   //   + '</form>');
+
+// });
 
 var port = process.env.PORT || 5000;
 
