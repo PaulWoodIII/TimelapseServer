@@ -1,7 +1,7 @@
 body {
   font-family: "Helvetica Neue", "Lucida Grande", "Arial";
   font-size: 13px;
-  text-align: center;
+  text-align: left;
   text-stroke: 1px rgba(255,255,255,0.1);
   color: #555;
 }
@@ -11,9 +11,50 @@ h2 {
   font-size: 22px;
   color: #343434;
 }
-h1 {
-  text-shadow: 1px 2px 2px #ddd;
+#header-spinner-container {
+  width: 250px;
+  height: 250px;
+}
+#header-spinner {
+  -webkit-animation-name: spinnerRotate;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -webkit-transform-origin: 100px 22px;
+  width: 250px;
+  height: 22px;
+  margin-left: 80px;
+  margin-top: 75px;
+}
+#header-spinner h1 {
+  font-family: "Georgia";
   font-size: 24px;
+}
+text-align right,
+#pedaling-logo,
+#pedaling-logo h1 {
+  margin-left: 50px;
+  margin-bottom: -10px;
+}
+#paul-logo {
+  -webkit-transform: rotate(-180deg);
+}
+#paul-logo h1 {
+  margin-left: 140px;
+}
+#pedaling-logo h1,
+#paul-logo h1 {
+  text-align: left;
+  width: 100%;
+}
+@-webkit-keyframes spinnerRotate {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 #articles {
   text-align: left;
