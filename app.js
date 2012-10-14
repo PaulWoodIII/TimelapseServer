@@ -4,7 +4,7 @@
  */
 
 var express = require('express');
-var ArticleProvider = require('./articleprovider').ArticleProvider;
+var ArticleProvider = require('./ArticleProvider').ArticleProvider;
 
 var app = module.exports = express.createServer();
 
@@ -29,6 +29,7 @@ app.configure('production', function(){
 });
 
 var articleProvider = new ArticleProvider('localhost', 27017);
+
 // Routes
 
 app.get('/', function(req, res){
@@ -69,5 +70,33 @@ app.get('/blog/:id', function(req, res) {
     });
 });
 
+app.get('/picture', function(req, res){
+	ArticleProvider.findAll(function(error, docs){
+	   res.send(docs);
+	   res.send('<form method="post" enctype="multipart/form-data">'
+	     + '<p>Public ID: <input type="text" name="title"/></p>'
+	     + '<p>Image: <input type="file" name="image"/></p>'
+	     + '<p><input type="submit" value="Upload"/></p>'
+	     + '</form>');
+	});
+})
+
+app.post('/picture', function(req, res, next){
+  // the uploaded file can be found as `req.files.image` and the
+  // title field as `req.body.title`
+  // res.send(format('\nuploaded %s (%d Kb) to %s as %s'
+  //   , req.files.image.name
+  //   , req.files.image.size / 1024 | 0 
+  //   , req.files.image.path
+  //   , req.body.title));
+  
+  stream = cloudinary.uploader.upload_stream(function(result) {
+    console.log(result);
+    res.send('Done:<br/> <img src="' + result.url + '"/><br/>' + 
+             cloudinary.image(result.public_id, { format: "png", width: 100, height: 130, crop: "fill" }));
+  }, { public_id: req.body.title } );
+  fs.createReadStream(req.files.image.path, {encoding: 'binary'}).on('data', stream.write).on('end', stream.end);
+  
+});
+
 app.listen(3000);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
