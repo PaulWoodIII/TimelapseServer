@@ -2,7 +2,7 @@ var express = require('express')
   , format = require('util').format;
 var fs = require('fs');
 var cloudinary = require('cloudinary');
-var ArticleProvider = require('./articleprovider').ArticleProvider;
+var nodemailer = require("nodemailer");
     
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
@@ -12,46 +12,49 @@ app.use(express.errorHandler({
    showStack: true
  }));
  
-app.get('/', function(req, res){
-	ArticleProvider.findAll(function(error, docs){
-	   res.send(docs);
-	   res.send('<form method="post" enctype="multipart/form-data">'
-	     + '<p>Public ID: <input type="text" name="title"/></p>'
-	     + '<p>Image: <input type="file" name="image"/></p>'
-	     + '<p><input type="submit" value="Upload"/></p>'
-	     + '</form>');
-	});
-})
+// create reusable transport method (opens pool of SMTP connections) var smtpTransport =
+nodemailer.createTransport("SMTP",{ service: "Gmail", auth: { user: "", pass: "" } });
  
-// app.get('/', function(request, res) {
-//   // res.send('<form method="post" enctype="multipart/form-data">'
-//   //   + '<p>Title: <input type="text" name="title" /></p>'
-//   //   + '<p>Image: <input type="file" name="image" /></p>'
-//   //   + '<p><input type="submit" value="Upload" /></p>'
-//   //   + '</form>');
-
-// });
+// Routes 
+ 
+app.get('/', function(req, res){
+	res.send('<form method="post" enctype="multipart/form-data">'
+   + '<p>Post Title: <input type="text" name="title"/></p>'
+   + '<p>Post Content: <input type="text" name="content"/></p>'
+	 + '<p>Image: <input type="file" name="image"/></p>'
+	 + '<p><input type="submit" value="Upload"/></p>'
+	 + '</form>');
+});
+ 
+app.post('/', function(req, res, next){
+  
+	// send mail with defined transport object
+  var mailOptions = {
+     from: "", // sender address
+     to: "", // list of receivers
+     subject: req.body.title, // Subject line
+     text: req.body.content, // plaintext body
+		 attachments:[
+       {
+				 fileName: req.body.title,
+         streamSource: req.files.image
+			 }
+		 ]
+  }
+ 
+  smtpTransport.sendMail(mailOptions, function(error, response){
+		if(error){
+		   console.log(error);
+			 res.send('Failed');
+		}else{
+		   console.log("Message sent: " + response.message);
+			 res.send('Worked');
+		}
+  });
+});
 
 var port = process.env.PORT || 5000;
 
 app.listen(port, function() {
   console.log("Listening on " + port);
-});
-
-app.post('/', function(req, res, next){
-  // the uploaded file can be found as `req.files.image` and the
-  // title field as `req.body.title`
-  // res.send(format('\nuploaded %s (%d Kb) to %s as %s'
-  //   , req.files.image.name
-  //   , req.files.image.size / 1024 | 0 
-  //   , req.files.image.path
-  //   , req.body.title));
-  
-  stream = cloudinary.uploader.upload_stream(function(result) {
-    console.log(result);
-    res.send('Done:<br/> <img src="' + result.url + '"/><br/>' + 
-             cloudinary.image(result.public_id, { format: "png", width: 100, height: 130, crop: "fill" }));
-  }, { public_id: req.body.title } );
-  fs.createReadStream(req.files.image.path, {encoding: 'binary'}).on('data', stream.write).on('end', stream.end);
-  
 });
