@@ -10,7 +10,8 @@
     "cloudinary": "",
     "jade": "*",
     "stylus": "*",
-    "mongodb": "*"
+    "mongodb": "*",
+		"nodemailer": "*"
   },
   "engines": {
     "node": "0.8.x",
