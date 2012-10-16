@@ -12,8 +12,14 @@ app.use(express.errorHandler({
    showStack: true
  }));
  
-// create reusable transport method (opens pool of SMTP connections) var smtpTransport =
-nodemailer.createTransport("SMTP",{ service: "Gmail", auth: { user: "", pass: "" } });
+// create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+	service: "Gmail",
+	auth: {
+		user: process.env.SENDER_EMAIL_ADDRESS, //email accound to send from
+		pass: process.env.SENDER_PASSWORD // password for the email account
+	}
+});
  
 // Routes 
  
@@ -30,14 +36,14 @@ app.post('/', function(req, res, next){
   
 	// send mail with defined transport object
   var mailOptions = {
-     from: "", // sender address
-     to: "", // list of receivers
-     subject: req.body.title, // Subject line
+     from: process.env.SENDER_EMAIL_ADDRESS, //email accound to send from
+     to: process.env.RECEIVER_EMAIL_ADDRESS, // email receiver
+     subject: "Portfolio // "+req.body.title, // Subject line
      text: req.body.content, // plaintext body
 		 attachments:[
        {
-				 fileName: req.body.title,
-         streamSource: req.files.image
+				 fileName: "image.jpeg",
+         streamSource: fs.createReadStream(req.files.image.path)
 			 }
 		 ]
   }
@@ -48,7 +54,7 @@ app.post('/', function(req, res, next){
 			 res.send('Failed');
 		}else{
 		   console.log("Message sent: " + response.message);
-			 res.send('Worked');
+			 res.send('Sent to: '+process.env.RECEIVER_EMAIL_ADDRESS);
 		}
   });
 });
